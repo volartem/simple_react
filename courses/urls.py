@@ -1,6 +1,8 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
+from courses.views import CourseViewSet, StudentViewSet
 
-from . import views
+router = SimpleRouter()
+router.register(r'courses', CourseViewSet)
+router.register(r'students', StudentViewSet)
 
-
-urlpatterns = []
+urlpatterns = router.urls
