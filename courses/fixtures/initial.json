@@ -1,38 +1,48 @@
 [
-  {
-    "model": "courses.course",
-    "pk": 1,
-    "fields": {
-      "name": "Programming",
-      "short_description": "Introduction to programming",
-      "description": "In this course you will learn more interesting things.",
-      "code": "CODE-1"
+    {
+        "model": "courses.course",
+        "pk": 1,
+        "fields": {
+            "name": "Programming",
+            "short_description": "Introduction to programming",
+            "description": "In this course you will learn more interesting things.",
+            "code": "CODE-1"
+        }
+    },
+    {
+        "model": "courses.course",
+        "pk": 2,
+        "fields": {
+            "name": "Python",
+            "short_description": "Python programming",
+            "description": "All tips and tricks of python language",
+            "code": "CODE-2"
+        }
+    },
+    {
+        "model": "courses.student",
+        "pk": 1,
+        "fields": {
+            "name": "Steve",
+            "surname": "Jobs",
+            "status": true,
+            "email": "jobs@email.com",
+            "courses": [
+                1
+            ]
+        }
+    },
+    {
+        "model": "courses.student",
+        "pk": 2,
+        "fields": {
+            "name": "Bruce",
+            "surname": "Willis",
+            "status": false,
+            "email": "bruce@email.com",
+            "courses": [
+                1
+            ]
+        }
     }
-  },
-  {
-    "model": "courses.student",
-    "pk": 1,
-    "fields": {
-      "name": "Steve",
-      "surname": "Jobs",
-      "status": true,
-      "email": "jobs@email.com",
-      "courses": [
-        1
-      ]
-    }
-  },
-  {
-    "model": "courses.student",
-    "pk": 2,
-    "fields": {
-      "name": "Bruce",
-      "surname": "Willis",
-      "status": false,
-      "email": "bruce@email.com",
-      "courses": [
-        1
-      ]
-    }
-  }
 ]
