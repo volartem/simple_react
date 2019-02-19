@@ -20,6 +20,16 @@
         }
     },
     {
+        "model": "courses.course",
+        "pk": 3,
+        "fields": {
+            "name": "Python for others",
+            "short_description": "Python for everyone",
+            "description": "All from python",
+            "code": "CODE-3"
+        }
+    },
+    {
         "model": "courses.student",
         "pk": 1,
         "fields": {
@@ -40,6 +50,19 @@
             "surname": "Willis",
             "status": false,
             "email": "bruce@email.com",
+            "courses": [
+                1
+            ]
+        }
+    },
+    {
+        "model": "courses.student",
+        "pk": 3,
+        "fields": {
+            "name": "Chuck",
+            "surname": "Norris",
+            "status": false,
+            "email": "iron-chuck@email.com",
             "courses": [
                 1
             ]

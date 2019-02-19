@@ -9,6 +9,8 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class StudentSerializer(serializers.ModelSerializer):
+    status = serializers.BooleanField(default=False)
+
     class Meta:
         model = Student
-        fields = "__all__"
+        fields = ("id", "email", "name", "surname", "status", "courses")

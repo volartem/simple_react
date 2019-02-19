@@ -1,16 +1,17 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import DataProvider from "./DataProvider";
-import Course from "./Course";
-import Student from "./Student";
+import {Router, Route, IndexRoute, browserHistory} from 'react-router-3'
+import List from "./List";
+import BaseLayout from "./Base";
+import IndexComponent from './Main';
 
 const App = () => (
-    <div className={"row"}>
-        <DataProvider endpoint="api/v1/courses/"
-                      render={data => <Course data={data}/>}/>
-        <DataProvider endpoint="api/v1/students/"
-                      render={data => <Student data={data}/>}/>
-    </div>
+    <Router history={browserHistory}>
+        <Route path="/" component={BaseLayout}>
+            <IndexRoute component={IndexComponent} />
+            <Route path="/courses" component={() => (<List endpoint={"api/v1/courses/"} name={"courses"}/>)}/>
+            <Route path="/students" component={() =>(<List endpoint={"api/v1/students/"} name={"students"}/>)}/>
+        </Route>
+    </Router>
 );
-const wrapper = document.getElementById("app");
-wrapper ? ReactDOM.render(<App/>, wrapper) : null;
+
+export default App;
