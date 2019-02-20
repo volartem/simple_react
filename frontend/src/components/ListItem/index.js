@@ -44,7 +44,8 @@ class EditItem extends Component {
 
     handleChange(key, event) {
         let item = this.state.item;
-        item[key] = key !== "courses" ? event.target.value : [parseInt(event.target.value)];
+        item[key] = key !== "courses" ? event.target.value :
+            [].filter.call(event.target.selectedOptions, o => o.selected).map(o => o.value);
         this.setState({item: item});
     }
 

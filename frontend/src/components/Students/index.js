@@ -17,12 +17,7 @@ class Student extends Component {
     render() {
         let that = this;
         let courseList = that.props.courses.map(function (obj, index) {
-            if (that.state.item !== undefined && Object.keys(that.state.item).length && that.state.item.courses) {
-                return <option key={key(obj)} value={obj.id}
-                               selected={that.state.item.courses[0] === obj.id}>{obj.name}</option>;
-            } else {
-                return <option key={key(obj)} value={obj.id}>{obj.name}</option>;
-            }
+            return <option key={key(obj)} value={obj.name}>{obj.name}</option>;
         });
 
         return this.state.item !== undefined ? (
@@ -71,12 +66,12 @@ class Student extends Component {
                                       checked={this.state.item ? this.state.item.status : false}/>
                         </FormGroup>
                         <FormGroup>
-                            {/*#TODO: multi select needed*/}
                             <ControlLabel>{"Courses"}</ControlLabel>
-                            <select multiple="" className="form-control" name="courses" required
-                                    onClick={this.props.handleChange.bind(this, "courses")}>
+                            <FormControl name={"courses"} componentClass="select" multiple
+                                         value={this.state.item.courses ? this.state.item.courses : []}
+                                         onChange={this.props.handleChange.bind(this, "courses")}>
                                 {courseList}
-                            </select>
+                            </FormControl>
                         </FormGroup>
                     </div>
                 </Modal.Body>

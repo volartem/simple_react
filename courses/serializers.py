@@ -10,6 +10,10 @@ class CourseSerializer(serializers.ModelSerializer):
 
 class StudentSerializer(serializers.ModelSerializer):
     status = serializers.BooleanField(default=False)
+    courses = serializers.SlugRelatedField(allow_null=True,
+                                           many=True,
+                                           slug_field="name",
+                                           queryset=Course.objects.all())
 
     class Meta:
         model = Student
