@@ -3,7 +3,7 @@ import EditItem from '../ListItem';
 import key from "weak-key";
 import Pagination from "react-js-pagination";
 import PropTypes from "prop-types";
-import {Button} from "react-bootstrap";
+import {Button, Modal} from "react-bootstrap";
 import Api from "../DataApi";
 
 
@@ -21,6 +21,9 @@ class List extends Component {
             items: [],
             related: [],
 
+            deleteModal: false,
+            itemDeleted: {},
+
             totalItems: 0,
             itemsCountPerPage: process.env.DEFAULT_PAGINATE_ITEMS_COUNT_ON_PAGE,
             pageRangeDisplayed: 5,
@@ -33,15 +36,14 @@ class List extends Component {
 
     prepareUrl(pageNumber, action, item) {
         let offset = this.prepareOffset(pageNumber, action);
-        let url = `${this.props.endpoint}${item ? item.id + "/":""}?limit=${this.state.itemsCountPerPage}&offset=${offset}`;
-        return url;
+        return `${this.props.endpoint}${item ? item.id + "/" : ""}?limit=${this.state.itemsCountPerPage}&offset=${offset}`;
     }
 
     prepareOffset(pageNumber, action) {
         if (action === "Add") {
             let divisionCurrent = Math.ceil((this.state.totalItems) / this.state.itemsCountPerPage);
             let divisionAfter = Math.ceil((this.state.totalItems + 1) / this.state.itemsCountPerPage);
-            if (divisionAfter  > divisionCurrent) {
+            if (divisionAfter > divisionCurrent) {
                 pageNumber = divisionAfter;
             } else {
                 pageNumber = divisionCurrent;
@@ -86,8 +88,14 @@ class List extends Component {
     }
 
     deleteItem(item) {
-        let url = this.prepareUrl(this.state.activePage, "Delete", item);
-        this.ApiInstance.deleteRequest(url, this, item);
+        this.setState({itemDeleted: item});
+        this.handleShowModalDelete();
+    }
+
+    confirmDelete(){
+        let url = this.prepareUrl(this.state.activePage, "Delete", this.state.itemDeleted);
+        this.ApiInstance.deleteRequest(url, this, this.state.itemDeleted);
+        this.handleHideModalDelete();
     }
 
     handleToUpdate(data, action, item) {
@@ -107,6 +115,14 @@ class List extends Component {
     componentDidMount() {
         let url = this.prepareUrl(this.state.activePage);
         this.ApiInstance.getRequest(url, this);
+    }
+
+    handleHideModalDelete() {
+        this.setState({deleteModal: false});
+    }
+
+    handleShowModalDelete() {
+        this.setState({deleteModal: true});
     }
 
     render() {
@@ -176,9 +192,23 @@ class List extends Component {
                         </table>
 
                     </div>
+                    <Modal show={this.state.deleteModal} onHide={this.handleHideModalDelete.bind(this)}
+                           dialogClassName="custom-modal">
+                        <Modal.Header>
+                            <div> Deleting {this.state.itemDeleted.name} </div>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div> Are you sure ?</div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button onClick={this.handleHideModalDelete.bind(this)}>Close</Button>
+                            <Button bsStyle="danger" onClick={this.confirmDelete.bind(this)}>{"Confirm"}</Button>
+                        </Modal.Footer>
+                    </Modal>
+
                 </div>);
         }
-        return <div>Loading...</div>;
+        return <div> Sorry, but {this.props.name} are absent...</div>;
     }
 }
 
