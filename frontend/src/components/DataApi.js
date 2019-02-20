@@ -29,14 +29,16 @@ class Api {
 
     putRequest(url, item, that) {
         this.apiRequest(url, "PUT", item).then(response => {
-            if (response.status !== 200) {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    that.props.handleToUpdate({}, "Edit", data);
+                });
+            } else if (response.status === 500) {
+                that.formFieldsError({"error": response.statusText});
+            } else {
                 response.json().then(data => {
                     console.log("Logger :::> Error put data here");
                     that.formFieldsError(data);
-                })
-            } else {
-                response.json().then(data => {
-                    that.props.handleToUpdate(that.state.item, "Edit");
                 })
             }
         })
@@ -44,15 +46,42 @@ class Api {
 
     postRequest(url, item, that) {
         this.apiRequest(url, "POST", item).then((response) => {
-            if (response.status !== 201) {
+            if (response.status === 201) {
+                response.json().then(data => {
+                    that.props.handleToUpdate(data, "Add");
+                });
+            } else if (response.status === 500) {
+                that.formFieldsError({"error": response.statusText});
+            } else {
                 response.json().then(data => {
                     console.log("Logger :::>  Error post data here");
                     that.formFieldsError(data);
                 })
+            }
+        })
+    }
+
+    deleteRequest(url, that, item) {
+        this.apiRequest(url, "DELETE", item).then((response) => {
+            console.log(response);
+            response.json().then(data => {
+                that.getRequestHandler(data);
+            });
+            // this.getRequest(that.prepareUrl(that.state.activePage), that);
+        })
+    }
+
+    getRequest(url, that) {
+        this.apiRequest(url, "GET").then((response) => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    that.getRequestHandler(data);
+                });
             } else {
                 response.json().then(data => {
-                    that.props.handleToUpdate(data, "Add");
-                });
+                    console.log("Logger :::>  Error get data here");
+                    that.formFieldsError(data);
+                })
             }
         })
     }

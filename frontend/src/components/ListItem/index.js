@@ -1,7 +1,5 @@
 import React, {Component} from 'react'
 import {Button, Modal, Alert} from "react-bootstrap";
-import Api from "../DataApi";
-
 import Student from "../Students";
 import Course from "../Courses";
 
@@ -44,11 +42,6 @@ class EditItem extends Component {
         this.setState({show: false});
     }
 
-    handleShow(item) {
-        console.log(item);
-        this.setState({show: true});
-    }
-
     handleChange(key, event) {
         let item = this.state.item;
         item[key] = key !== "courses" ? event.target.value : [parseInt(event.target.value)];
@@ -64,6 +57,7 @@ class EditItem extends Component {
             this.props.ApiInstance.putRequest(url + this.state.item.id + "/", this.state.item, this);
         }
         if (this.state.action === "Add") {
+            url = this.props.prepareUrl(this.props.activePage, "Add");
             this.props.ApiInstance.postRequest(url, this.state.item, this);
         }
         this.handleHide();
@@ -72,7 +66,6 @@ class EditItem extends Component {
     render() {
         let that = this;
         let errorsList = Object.keys(that.state.errorsList).map(function (keyItem, index) {
-            console.log(keyItem);
             return <p key={"errors_list_" + index}><b>{keyItem}</b> : {that.state.errorsList[keyItem]}</p>;
         });
 

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import EditItem from '../ListItem';
 import key from "weak-key";
-
+import Pagination from "react-js-pagination";
 import PropTypes from "prop-types";
 import {Button} from "react-bootstrap";
 import Api from "../DataApi";
@@ -18,12 +18,64 @@ class List extends Component {
         super(props);
         this.state = {
             item: {},
-            items: []
+            items: [],
+            related: [],
+
+            totalItems: 0,
+            itemsCountPerPage: process.env.DEFAULT_PAGINATE_ITEMS_COUNT_ON_PAGE,
+            pageRangeDisplayed: 5,
+            activePage: 1
         };
         this.itemElement = React.createRef();
     }
 
     ApiInstance = new Api();
+
+    prepareUrl(pageNumber, action, item) {
+        let offset = this.prepareOffset(pageNumber, action);
+        let url = `${this.props.endpoint}${item ? item.id + "/":""}?limit=${this.state.itemsCountPerPage}&offset=${offset}`;
+        return url;
+    }
+
+    prepareOffset(pageNumber, action) {
+        if (action === "Add") {
+            let divisionCurrent = Math.ceil((this.state.totalItems) / this.state.itemsCountPerPage);
+            let divisionAfter = Math.ceil((this.state.totalItems + 1) / this.state.itemsCountPerPage);
+            if (divisionAfter  > divisionCurrent) {
+                pageNumber = divisionAfter;
+            } else {
+                pageNumber = divisionCurrent;
+            }
+        }
+        if (action === "Delete") {
+            if (this.state.items.length - 1 <= 0) {
+                pageNumber--;
+            }
+        }
+        this.setState({activePage: pageNumber});
+        let result = this.state.itemsCountPerPage * pageNumber - this.state.itemsCountPerPage;
+        return result;
+    }
+
+    handlePageChange(pageNumber) {
+        let url = this.prepareUrl(pageNumber);
+        this.ApiInstance.getRequest(url, this);
+        this.synchronizePaginateState(this.state.totalItems, pageNumber, this.state.itemsCountPerPage, this.state.pageRangeDisplayed);
+    }
+
+    synchronizePaginateState(totalItems, activePage, itemsCountPerPage, pageRangeDisplayed) {
+        let divisionPages = Math.ceil(totalItems / itemsCountPerPage);
+        if (divisionPages < pageRangeDisplayed) {
+            pageRangeDisplayed = divisionPages;
+        }
+        this.setState({
+            itemsCountPerPage: itemsCountPerPage,
+            totalItems: totalItems,
+            activePage: activePage,
+            pageRangeDisplayed: pageRangeDisplayed
+        })
+    }
+
 
     addItem() {
         this.itemElement.current.changeItem({}, "Add");
@@ -33,55 +85,55 @@ class List extends Component {
         this.itemElement.current.changeItem(item, "Edit");
     }
 
-    handleShow(item) {
-        this.setState({show: true});
-    }
-
     deleteItem(item) {
-        this.setState({item: item});
-        this.ApiInstance.apiRequest("api/v1/" + this.props.name + "/" + item.id + "/", "DELETE", item)
-        .then(response => {
-            if (response.status === 204) {
-                let items = this.state.items;
-                items.result = items.result.filter(i => i !== item);
-                this.setState({items: items});
-            }
-        });
+        let url = this.prepareUrl(this.state.activePage, "Delete", item);
+        this.ApiInstance.deleteRequest(url, this, item);
     }
 
-    handleToUpdate(item, action) {
+    handleToUpdate(data, action, item) {
         if (action === "Add") {
-            let items = this.state.items;
-            items['result'].push(item);
-            this.setState({items: items});
+            this.setState({items: data.result});
+            this.setState({totalItems: data.total});
         }
         if (action === "Edit") {
             this.setState({item: item});
         }
     }
 
+    getRequestHandler(data) {
+        this.setState({items: data.result, totalItems: data.total, related: data.related});
+    }
+
     componentDidMount() {
-        this.ApiInstance.apiRequest(this.props.endpoint).then(response => {
-            if (response.status !== 200) {
-                return this.setState({placeholder: "Something went wrong"});
-            }
-            return response.json();
-        })
-        .then(data => this.setState({items: data}));
+        let url = this.prepareUrl(this.state.activePage);
+        this.ApiInstance.getRequest(url, this);
     }
 
     render() {
-        if (this.state.items["result"]) {
+        if (this.state.items.length) {
             return (
                 <div className="row">
                     <div className={"col-md-12 col-xs-12"}>
-
+                        <div className={"text-center"}>
+                            <Pagination
+                                activePage={this.state.activePage}
+                                itemsCountPerPage={this.state.itemsCountPerPage}
+                                totalItemsCount={this.state.totalItems}
+                                pageRangeDisplayed={this.state.pageRangeDisplayed}
+                                onChange={this.handlePageChange.bind(this)}/>
+                        </div>
                         {this.props.name === 'courses' ?
-                            <EditItem ApiInstance={this.ApiInstance} name={this.props.name} item={this.state.item} ref={this.itemElement}
+                            <EditItem ApiInstance={this.ApiInstance} name={this.props.name} item={this.state.item}
+                                      ref={this.itemElement}
                                       action={"Edit"}
+                                      activePage={this.state.activePage}
+                                      prepareUrl={this.prepareUrl.bind(this)}
                                       handleToUpdate={this.handleToUpdate.bind(this)}/> :
-                            <EditItem ApiInstance={this.ApiInstance} name={this.props.name} item={this.state.item} ref={this.itemElement}
-                                      courses={this.state.items["related"]} action={"Edit"}
+                            <EditItem ApiInstance={this.ApiInstance} name={this.props.name} item={this.state.item}
+                                      ref={this.itemElement}
+                                      courses={this.state.related} action={"Edit"}
+                                      activePage={this.state.activePage}
+                                      prepareUrl={this.prepareUrl.bind(this)}
                                       handleToUpdate={this.handleToUpdate.bind(this)}/>
                         }
                         <div className={"row"}>
@@ -99,13 +151,13 @@ class List extends Component {
                         </div>
                         <table className={"table "}>
                             <thead>
-                                <tr>
-                                    {this.state.items["result"].length ? Object.entries(this.state.items["result"][0]).map(el =>
-                                        <td key={key(el)}>{el[0]}</td>) : null}
-                                </tr>
+                            <tr>
+                                {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
+                                    <td key={key(el)}>{el[0]}</td>) : null}
+                            </tr>
                             </thead>
                             <tbody>
-                            {this.state.items  && this.state.items["result"].length ? this.state.items["result"].map(el => (
+                            {this.state.items && this.state.items.length ? this.state.items.map(el => (
                                 <tr key={el.id}>
                                     {Object.entries(el).map(el => <td key={key(el)}>{String(el[1])}</td>)}
                                     <td>
