@@ -34,6 +34,19 @@ class List extends Component {
 
     ApiInstance = new Api();
 
+
+    handleChangeCountPerPage(event) {
+        let that = this;
+        let countItemsPerPage = event.target.value;
+        this.calculateAndSetActivePageAndItemsOnPage(countItemsPerPage).then(
+            function () {
+                let url = that.prepareUrl(that.state.activePage);
+                that.ApiInstance.getRequest(url, that);
+            }, function (error) {
+                console.error(error);
+            });
+    }
+
     prepareUrl(pageNumber, action, item) {
         let offset = this.prepareOffset(pageNumber, action);
         return `${this.props.endpoint}${item ? item.id + "/" : ""}?limit=${this.state.itemsCountPerPage}&offset=${offset}`;
@@ -66,16 +79,29 @@ class List extends Component {
     }
 
     synchronizePaginateState(totalItems, activePage, itemsCountPerPage, pageRangeDisplayed) {
-        let divisionPages = Math.ceil(totalItems / itemsCountPerPage);
-        if (divisionPages < pageRangeDisplayed) {
-            pageRangeDisplayed = divisionPages;
-        }
         this.setState({
             itemsCountPerPage: itemsCountPerPage,
             totalItems: totalItems,
             activePage: activePage,
             pageRangeDisplayed: pageRangeDisplayed
         })
+    }
+
+    calculateAndSetActivePageAndItemsOnPage(itemsOnPage) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let activePage = that.state.activePage;
+                let lastPage = Math.ceil((that.state.totalItems) / itemsOnPage);
+                if (that.state.activePage > lastPage || that.state.activePage < lastPage) { // on the last page jump
+                    activePage = lastPage;
+                }
+                that.setState({activePage: activePage, itemsCountPerPage: itemsOnPage});
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        });
     }
 
 
@@ -92,7 +118,7 @@ class List extends Component {
         this.handleShowModalDelete();
     }
 
-    confirmDelete(){
+    confirmDelete() {
         let url = this.prepareUrl(this.state.activePage, "Delete", this.state.itemDeleted);
         this.ApiInstance.deleteRequest(url, this, this.state.itemDeleted);
         this.handleHideModalDelete();
@@ -130,14 +156,33 @@ class List extends Component {
             return (
                 <div className="row">
                     <div className={"col-md-12 col-xs-12"}>
-                        <div className={"text-center"}>
-                            <Pagination
-                                activePage={this.state.activePage}
-                                itemsCountPerPage={this.state.itemsCountPerPage}
-                                totalItemsCount={this.state.totalItems}
-                                pageRangeDisplayed={this.state.pageRangeDisplayed}
-                                onChange={this.handlePageChange.bind(this)}/>
+                        <div className={"row"}>
+                            <div className={"col-md-10 col-xs-10"}>
+                                <Pagination
+                                    activePage={this.state.activePage}
+                                    itemsCountPerPage={this.state.itemsCountPerPage}
+                                    totalItemsCount={this.state.totalItems}
+                                    pageRangeDisplayed={this.state.pageRangeDisplayed}
+                                    onChange={this.handlePageChange.bind(this)}/>
+                            </div>
+                            <div className={"col-md-2 col-xs-2"}>
+                                <div className="form-group">
+                                    <label className="col-sm-2 control-label">Items:</label>
+                                    <select className={"form-control"} value={this.state.itemsCountPerPage}
+                                            onChange={this.handleChangeCountPerPage.bind(this)}>
+                                        <option value={2}>2</option>
+                                        <option value={5}>5</option>
+                                        <option value={10}>10</option>
+                                        <option value={15}>15</option>
+                                        <option value={20}>20</option>
+                                        <option value={25}>25</option>
+                                        <option value={30}>30</option>
+                                    </select>
+                                </div>
+
+                            </div>
                         </div>
+
                         {this.props.name === 'courses' ?
                             <EditItem ApiInstance={this.ApiInstance} name={this.props.name} item={this.state.item}
                                       ref={this.itemElement}
