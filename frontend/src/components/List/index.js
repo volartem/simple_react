@@ -294,45 +294,48 @@ class List extends Component {
                                       prepareUrl={this.prepareUrl.bind(this)}
                                       handleToUpdate={this.handleToUpdate.bind(this)}/>
                         }
-                        <table className={"table "}>
-                            <thead>
-                            <tr>
-                                {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
-                                    <td key={key(el)}>{el[0]}</td>) : null}
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
-                                    <td key={`filter-${el[0]}`}>
-                                        <input onChange={this.handleInputFilters.bind(this)} name={el[0]}
-                                               value={this.state.filters[el[0]]} type={"text"}/>
-                                    </td>) : null}
-                                <td rowSpan={2}>
-                                    <Button bsStyle="default" onClick={this.handleApplyFilters.bind(this)}>
-                                        Apply filters
-                                    </Button></td>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {this.state.items && this.state.items.length ? this.state.items.map(el => (
-                                <tr key={el.id}>
-                                    {Object.entries(el).map(el => <td key={key(el)}>{String(el[1])}</td>)}
-                                    <td>
-                                        <Button bsStyle="primary" onClick={this.editItem.bind(this, el)}>
-                                            Edit / Show
-                                        </Button>
-                                    </td>
-                                    <td>
-                                        <Button bsStyle="danger" onClick={this.deleteItem.bind(this, el)}>
-                                            Delete
-                                        </Button>
-                                    </td>
+                        <div className={"table-responsive"}>
+                            <table className={"table table-sm"}>
+                                <thead>
+                                <tr>
+                                    {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
+                                        <td className="form-group row"  key={key(el)}><div className="col-xs-2"> {el[0]}</div></td>) : null}
+                                    <td></td>
+                                    <td></td>
                                 </tr>
-                            )) : null}
-                            </tbody>
-                        </table>
-
+                                <tr>
+                                    {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
+                                        <td className="form-group row" key={`filter-${el[0]}`}>
+                                            <div className="col-xs-12">
+                                                <input className={"form-control"} onChange={this.handleInputFilters.bind(this)} name={el[0]}
+                                                       value={this.state.filters[el[0]]} type={"text"}/>
+                                            </div>
+                                        </td>) : null}
+                                    <td rowSpan={2}>
+                                        <Button bsStyle="default" onClick={this.handleApplyFilters.bind(this)}>
+                                            Apply filters
+                                        </Button></td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {this.state.items && this.state.items.length ? this.state.items.map(el => (
+                                    <tr key={el.id}>
+                                        {Object.entries(el).map(el => <td key={key(el)}>{String(el[1])}</td>)}
+                                        <td>
+                                            <Button bsStyle="primary" onClick={this.editItem.bind(this, el)}>
+                                                Edit / Show
+                                            </Button>
+                                        </td>
+                                        <td>
+                                            <Button bsStyle="danger" onClick={this.deleteItem.bind(this, el)}>
+                                                Delete
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                )) : null}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <Modal show={this.state.deleteModal} onHide={this.handleHideModalDelete.bind(this)}
                            dialogClassName="custom-modal">
