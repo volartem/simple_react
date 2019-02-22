@@ -24,7 +24,8 @@
         "react-bootstrap": "^0.32.4",
         "react-dom": "^16.8.1",
         "react-js-pagination": "^3.0.2",
-        "react-router-3": "^3.2.2",
+        "react-router": "^4.3.1",
+        "react-router-dom": "^4.3.1",
         "weak-key": "^1.0.1",
         "webpack": "^4.29.3",
         "webpack-cli": "^3.2.3"

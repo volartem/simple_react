@@ -1,38 +1,20 @@
 import React from 'react'
-import {Link} from "react-router-3";
+import {Link} from "react-router-dom";
+import {Navbar, Nav, NavItem} from 'react-bootstrap';
 
-
-const BaseLayout = ({children, location}) => (
+const BaseLayout = props => (
     <div>
-        <nav className="navbar navbar-default">
-            <div className="container-fluid">
-                <div className="navbar-header">
-                    <button type="button" className="navbar-toggle collapsed" data-toggle="collapse"
-                            data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                        <span className="sr-only">Toggle navigation</span>
-                    </button>
-                    <a className="navbar-brand" href="/">Main</a>
-                </div>
-
-                <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul className="nav navbar-nav">
-                        <li><Link to="/students">Students</Link></li>
-                        <li><Link to="/courses">Courses</Link></li>
-                    </ul>
-                    {/*<form className="navbar-form navbar-left">*/}
-                        {/*<div className="form-group">*/}
-                            {/*<input type="text" className="form-control" placeholder="Search"/>*/}
-                        {/*</div>*/}
-                        {/*<button type="submit" className="btn btn-default">Search</button>*/}
-                    {/*</form>*/}
-                </div>
-
-            </div>
-        </nav>
+        <Navbar>
+            <Nav>
+                <NavItem componentClass={Link} href={"/"} to={"/"}>Main</NavItem>
+                <NavItem componentClass={Link} href="/courses" to="/courses"
+                         active={location.pathname === '/courses'}>Courses</NavItem>
+                <NavItem componentClass={Link} href="/students" to="/students"
+                         active={location.pathname === '/students'}>Students</NavItem>
+            </Nav>
+        </Navbar>
         <div className={"container"}>
-            {React.cloneElement(children, {
-                key: location.pathname
-            })}
+            <main>{props.children}</main>
         </div>
         <footer className="page-footer">
             <div className="footer-copyright text-center py-3">

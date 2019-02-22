@@ -166,23 +166,44 @@ class List extends Component {
                                     onChange={this.handlePageChange.bind(this)}/>
                             </div>
                             <div className={"col-md-2 col-xs-2"}>
-                                <div className="form-group">
-                                    <label className="col-sm-2 control-label">Items:</label>
-                                    <select className={"form-control"} value={this.state.itemsCountPerPage}
-                                            onChange={this.handleChangeCountPerPage.bind(this)}>
-                                        <option value={2}>2</option>
-                                        <option value={5}>5</option>
-                                        <option value={10}>10</option>
-                                        <option value={15}>15</option>
-                                        <option value={20}>20</option>
-                                        <option value={25}>25</option>
-                                        <option value={30}>30</option>
-                                    </select>
-                                </div>
-
+                                <ul className={"pagination"}>
+                                    <li onClick={this.addItem.bind(this)}>
+                                        <a className={"btn btn-md btn-default"}>Add {this.props.name}</a>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
-
+                        <div className={"row"}>
+                            <nav className="navbar navbar-default">
+                                <div className="container-fluid">
+                                    <div className="collapse navbar-collapse">
+                                        <div className="navbar-form navbar-left" role="search">
+                                            <div className="form-group">
+                                                <input type="text" className="form-control" placeholder="Search"/>
+                                            </div>
+                                            <button type="submit" className="btn btn-default">Search</button>
+                                        </div>
+                                        <div className="navbar-form navbar-right">
+                                            <div className="form-group">
+                                                <div className={"button"}>Select Items:</div>
+                                            </div>
+                                            <div className="form-group">
+                                                <select className={"form-control"} value={this.state.itemsCountPerPage}
+                                                        onChange={this.handleChangeCountPerPage.bind(this)}>
+                                                    <option value={2}>2</option>
+                                                    <option value={5}>5</option>
+                                                    <option value={10}>10</option>
+                                                    <option value={15}>15</option>
+                                                    <option value={20}>20</option>
+                                                    <option value={25}>25</option>
+                                                    <option value={30}>30</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </nav>
+                        </div>
                         {this.props.name === 'courses' ?
                             <EditItem ApiInstance={this.ApiInstance} name={this.props.name} item={this.state.item}
                                       ref={this.itemElement}
@@ -197,19 +218,6 @@ class List extends Component {
                                       prepareUrl={this.prepareUrl.bind(this)}
                                       handleToUpdate={this.handleToUpdate.bind(this)}/>
                         }
-                        <div className={"row"}>
-                            <div className={"col-md-8 col-xs-8"}>
-                                <b>
-                                    Current {this.props.name}:
-                                </b>
-                            </div>
-                            <div className={"col-md-4 col-xs-4"}>
-                                <Button bsSize="small" bsStyle="success" onClick={this.addItem.bind(this)}>
-                                    Add {this.props.name}
-                                </Button>
-                                <p></p>
-                            </div>
-                        </div>
                         <table className={"table "}>
                             <thead>
                             <tr>
