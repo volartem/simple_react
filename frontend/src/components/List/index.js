@@ -24,7 +24,8 @@ class List extends Component {
             deleteModal: false,
             itemDeleted: {},
 
-            searchField:"",
+            filters: this.initDefaultFilters(props),
+            searchField: "",
             totalItems: 0,
             itemsCountPerPage: process.env.DEFAULT_PAGINATE_ITEMS_COUNT_ON_PAGE,
             pageRangeDisplayed: 5,
@@ -35,6 +36,13 @@ class List extends Component {
 
     ApiInstance = new Api();
 
+    initDefaultFilters(props) {
+        let obj = {id: "", name: ""};
+        obj = props.name === "students" ?
+            Object.assign(obj, {surname: "", courses: "", status: "", email: ""}) :
+            Object.assign(obj, {code: "", description: "", short_description: ""});
+        return obj;
+    }
 
     handleChangeCountPerPage(event) {
         let that = this;
@@ -50,7 +58,20 @@ class List extends Component {
 
     prepareUrl(pageNumber, action, item) {
         let offset = this.prepareOffset(pageNumber, action);
-        return `${this.props.endpoint}${item ? item.id + "/" : ""}?limit=${this.state.itemsCountPerPage}&offset=${offset}&search=${this.state.searchField}`;
+        return `${this.props.endpoint}${item ? item.id + "/" : ""}?limit=
+        ${this.state.itemsCountPerPage}&offset=${offset}&search=${this.state.searchField}${this.prepareFilters()}`;
+    }
+
+    prepareFilters() {
+        let filterUrl = (Object.entries(this.state.filters).map(obj => obj[1] ? `&${obj[0]}=${obj[1]}` : ``)).join("");
+        if (this.props.name === "students") {
+            let course = this.state.related.find(element => element.name === this.state.filters.courses);
+            //regenerate url
+            filterUrl = (Object.entries(this.state.filters).map(
+                obj => obj[0] !== "courses" ? `&${obj[0]}=${obj[1]}` : course ? `&courses=${course.id}` : "")).join("");
+        }
+        console.log(filterUrl);
+        return filterUrl;
     }
 
     prepareOffset(pageNumber, action) {
@@ -73,12 +94,24 @@ class List extends Component {
         return result;
     }
 
-    searchInputChange(event){
+    searchInputChange(event) {
         this.setState({searchField: event.target.value});
     }
 
-    handleSearchSubmit(event){
-       this.handlePageChange(1);
+    handleSearchSubmit(event) {
+        this.handlePageChange(1);
+    }
+
+    handleApplyFilters() {
+        this.handlePageChange(1);
+    }
+
+    handleInputFilters(event) {
+        console.log(event.target.name);
+        let obj = this.state.filters;
+        obj[event.target.name] = event.target.value;
+        this.setState({filters: obj});
+
     }
 
     handlePageChange(pageNumber) {
@@ -188,9 +221,13 @@ class List extends Component {
                                     <div className="collapse navbar-collapse">
                                         <div className="navbar-form navbar-left" role="search">
                                             <div className="form-group">
-                                                <input type="text" onChange={this.searchInputChange.bind(this)} value={this.state.searchField} className="form-control" placeholder="Search"/>
+                                                <input type="text" onChange={this.searchInputChange.bind(this)}
+                                                       value={this.state.searchField} className="form-control"
+                                                       placeholder="Search"/>
                                             </div>
-                                            <button className="btn btn-default" onClick={this.handleSearchSubmit.bind(this)}>Search</button>
+                                            <button className="btn btn-default"
+                                                    onClick={this.handleSearchSubmit.bind(this)}>Search
+                                            </button>
                                         </div>
                                         <div className="navbar-form navbar-right">
                                             <div className="form-group">
@@ -232,6 +269,19 @@ class List extends Component {
                             <tr>
                                 {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
                                     <td key={key(el)}>{el[0]}</td>) : null}
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
+                                    <td key={`filter-${el[0]}`}>
+                                        <input onChange={this.handleInputFilters.bind(this)} name={el[0]}
+                                               value={this.state.filters[el[0]]} type={"text"}/>
+                                    </td>) : null}
+                                <td rowSpan={2}>
+                                    <Button bsStyle="default" onClick={this.handleApplyFilters.bind(this)}>
+                                        Apply filters
+                                    </Button></td>
                             </tr>
                             </thead>
                             <tbody>

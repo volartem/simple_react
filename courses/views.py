@@ -59,8 +59,8 @@ class CourseViewSet(BaseModelViewSetMixin):
     model_class = Course
     queryset = Course.objects.all().order_by("id")
     serializer_class = CourseSerializer
-    search_fields = ('name', 'short_description', "description",)
-    filter_fields = ('name', "code",)
+    search_fields = ("name", "description", "short_description",)
+    filter_fields = ("id", "name", "description", "short_description", "code",)
 
 
 class StudentViewSet(BaseModelViewSetMixin):
@@ -71,5 +71,5 @@ class StudentViewSet(BaseModelViewSetMixin):
     model_class = Student
     queryset = Student.objects.all().order_by("id")
     serializer_class = StudentSerializer
-    search_fields = ('name', 'surname', "email",)
-    filter_fields = ('name', "surname", "email",)
+    search_fields = ("name", "surname", "email",)
+    filter_fields = ("id", "name", "surname", "email", "courses", "status",)
