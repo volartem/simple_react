@@ -11,11 +11,15 @@ class EditItem extends Component {
         this.handleErrorsDismiss = this.handleErrorsDismiss.bind(this);
         this.handleErrorsShow = this.handleErrorsShow.bind(this);
 
+        this.handleSuccessDismiss = this.handleSuccessDismiss.bind(this);
+        this.handleSuccessShow = this.handleSuccessShow.bind(this);
+
         this.state = {
             show: false,
             item: undefined,
             action: props.action,
             errorsShow: false,
+            successShow: false,
             errorsList: [],
             courses: this.props.courses
         };
@@ -25,16 +29,27 @@ class EditItem extends Component {
         this.setState({errorsShow: false});
     }
 
+    handleSuccessDismiss() {
+        this.setState({successShow: false});
+    }
+
+    handleSuccessShow() {
+        this.setState({successShow: true});
+    }
+
+
     handleErrorsShow() {
         this.setState({errorsShow: true});
     }
 
     formFieldsError(errors) {
         this.setState({errorsList: errors});
-        this.setState({errorsShow: true});
+        this.handleErrorsShow();
     }
 
     changeItem(item, action) {
+        this.handleSuccessDismiss();
+        this.handleErrorsDismiss();
         this.setState({item: item, show: true, action: action});
     }
 
@@ -78,6 +93,14 @@ class EditItem extends Component {
                         {errorsList}
                         <p>
                             <Button onClick={this.handleErrorsDismiss}>Hide</Button>
+                        </p>
+                    </Alert>
+                    : null}
+                {this.state.successShow ?
+                    <Alert bsStyle="success" onDismiss={this.handleSuccessDismiss}>
+                        <h4>Congrats!!!</h4>
+                        <p>
+                            {this.state.action}ing complete!!!
                         </p>
                     </Alert>
                     : null}

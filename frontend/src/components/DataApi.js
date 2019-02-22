@@ -32,6 +32,7 @@ class Api {
             if (response.status === 200) {
                 response.json().then(data => {
                     that.props.handleToUpdate({}, "Edit", data);
+                    that.handleSuccessShow();
                 });
             } else if (response.status === 500) {
                 that.formFieldsError({"error": response.statusText});
@@ -49,6 +50,7 @@ class Api {
             if (response.status === 201) {
                 response.json().then(data => {
                     that.props.handleToUpdate(data, "Add");
+                    that.handleSuccessShow();
                 });
             } else if (response.status === 500) {
                 that.formFieldsError({"error": response.statusText});
