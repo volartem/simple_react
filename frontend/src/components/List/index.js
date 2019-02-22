@@ -24,6 +24,7 @@ class List extends Component {
             deleteModal: false,
             itemDeleted: {},
 
+            searchField:"",
             totalItems: 0,
             itemsCountPerPage: process.env.DEFAULT_PAGINATE_ITEMS_COUNT_ON_PAGE,
             pageRangeDisplayed: 5,
@@ -49,7 +50,7 @@ class List extends Component {
 
     prepareUrl(pageNumber, action, item) {
         let offset = this.prepareOffset(pageNumber, action);
-        return `${this.props.endpoint}${item ? item.id + "/" : ""}?limit=${this.state.itemsCountPerPage}&offset=${offset}`;
+        return `${this.props.endpoint}${item ? item.id + "/" : ""}?limit=${this.state.itemsCountPerPage}&offset=${offset}&search=${this.state.searchField}`;
     }
 
     prepareOffset(pageNumber, action) {
@@ -70,6 +71,14 @@ class List extends Component {
         this.setState({activePage: pageNumber});
         let result = this.state.itemsCountPerPage * pageNumber - this.state.itemsCountPerPage;
         return result;
+    }
+
+    searchInputChange(event){
+        this.setState({searchField: event.target.value});
+    }
+
+    handleSearchSubmit(event){
+       this.handlePageChange(1);
     }
 
     handlePageChange(pageNumber) {
@@ -179,9 +188,9 @@ class List extends Component {
                                     <div className="collapse navbar-collapse">
                                         <div className="navbar-form navbar-left" role="search">
                                             <div className="form-group">
-                                                <input type="text" className="form-control" placeholder="Search"/>
+                                                <input type="text" onChange={this.searchInputChange.bind(this)} value={this.state.searchField} className="form-control" placeholder="Search"/>
                                             </div>
-                                            <button type="submit" className="btn btn-default">Search</button>
+                                            <button className="btn btn-default" onClick={this.handleSearchSubmit.bind(this)}>Search</button>
                                         </div>
                                         <div className="navbar-form navbar-right">
                                             <div className="form-group">
