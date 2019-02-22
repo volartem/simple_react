@@ -26,6 +26,8 @@ class List extends Component {
 
             filters: this.initDefaultFilters(props),
             searchField: "",
+            ordering: "id",
+
             totalItems: 0,
             itemsCountPerPage: process.env.DEFAULT_PAGINATE_ITEMS_COUNT_ON_PAGE,
             pageRangeDisplayed: 5,
@@ -59,7 +61,11 @@ class List extends Component {
     prepareUrl(pageNumber, action, item) {
         let offset = this.prepareOffset(pageNumber, action);
         return `${this.props.endpoint}${item ? item.id + "/" : ""}?limit=
-        ${this.state.itemsCountPerPage}&offset=${offset}&search=${this.state.searchField}${this.prepareFilters()}`;
+        ${this.state.itemsCountPerPage}&offset=${offset}&search=${this.state.searchField}${this.prepareFilters()}${this.prepareOrdering()}`;
+    }
+
+    prepareOrdering() {
+        return `&ordering=${this.state.ordering}`;
     }
 
     prepareFilters() {
@@ -94,6 +100,13 @@ class List extends Component {
         return result;
     }
 
+    orderChange(event) {
+        this.setState({ordering: event.target.value},
+            () => {
+                this.handlePageChange(1)
+            });
+    }
+
     searchInputChange(event) {
         this.setState({searchField: event.target.value});
     }
@@ -126,7 +139,7 @@ class List extends Component {
             totalItems: totalItems,
             activePage: activePage,
             pageRangeDisplayed: pageRangeDisplayed
-        })
+        });
     }
 
     calculateAndSetActivePageAndItemsOnPage(itemsOnPage) {
@@ -195,6 +208,12 @@ class List extends Component {
 
     render() {
         if (this.state.items.length) {
+            let orderList = Object.keys(this.state.items[0]).map(function (key, index) {
+                return <optgroup key={"order-optionGroup-" + index}>
+                    <option key={"order-option-" + index} value={key}>{key}</option>
+                    <option key={"order-option-reverse" + index} value={`-${key}`}>-{key}</option>
+                </optgroup>;
+            });
             return (
                 <div className="row">
                     <div className={"col-md-12 col-xs-12"}>
@@ -243,6 +262,17 @@ class List extends Component {
                                                     <option value={20}>20</option>
                                                     <option value={25}>25</option>
                                                     <option value={30}>30</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="navbar-form navbar-default">
+                                            <div className="form-group">
+                                                <div className={"button"}>Order by:</div>
+                                            </div>
+                                            <div className="form-group">
+                                                <select className={"form-control"} value={this.state.ordering}
+                                                        onChange={this.orderChange.bind(this)}>
+                                                    {orderList}
                                                 </select>
                                             </div>
                                         </div>
