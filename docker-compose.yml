@@ -9,3 +9,16 @@ services:
       - .env.db
     ports:
       - "5432:5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./run_django.sh
+    restart: always
+    ports:
+      - "8000:8000"
+    links:
+      - db
+    depends_on:
+      - db

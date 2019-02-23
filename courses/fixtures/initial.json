@@ -30,6 +30,26 @@
         }
     },
     {
+        "model": "courses.course",
+        "pk": 4,
+        "fields": {
+            "name": "Java",
+            "short_description": "Java for everyone",
+            "description": "Base java language",
+            "code": "byte code"
+        }
+    },
+    {
+        "model": "courses.course",
+        "pk": 5,
+        "fields": {
+            "name": "JavaScript",
+            "short_description": "JavaScript language",
+            "description": "Base javascript ",
+            "code": "js"
+        }
+    },
+    {
         "model": "courses.student",
         "pk": 1,
         "fields": {
@@ -65,6 +85,36 @@
             "email": "iron-chuck@email.com",
             "courses": [
                 1
+            ]
+        }
+    },
+    {
+        "model": "courses.student",
+        "pk": 4,
+        "fields": {
+            "name": "Jackie",
+            "surname": "Chan",
+            "status": false,
+            "email": "chan@email.com",
+            "courses": [
+                1,
+                2,
+                3
+            ]
+        }
+    },
+    {
+        "model": "courses.student",
+        "pk": 5,
+        "fields": {
+            "name": "Steven",
+            "surname": "Seagal",
+            "status": false,
+            "email": "seagel@email.com",
+            "courses": [
+                3,
+                4,
+                5
             ]
         }
     }
