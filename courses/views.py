@@ -7,12 +7,13 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.response import Response
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.exceptions import FieldError
+from rest_framework.exceptions import ParseError
 
 
 class BaseModelViewSetMixin(ModelViewSet):
     model_class = None
     filter_backends = (filters.SearchFilter, DjangoFilterBackend,)
-    ordering_filter = filters.OrderingFilter()
 
     @method_decorator(ensure_csrf_cookie)
     def list(self, request, *args, **kwargs):
@@ -34,20 +35,28 @@ class BaseModelViewSetMixin(ModelViewSet):
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
     def custom_data(self):
-        queryset = self.model_class.objects.all().order_by("id")
-        filter_queryset = self.filter_queryset(queryset)
-        total_items = filter_queryset.count()
-        paginate_queryset = self.paginate_queryset(filter_queryset)
+        ordering = self.request.query_params.get('ordering', "id")
+        try:
+            queryset = self.model_class.objects.all().order_by(ordering)
+            filter_queryset = self.filter_queryset(queryset)
+            if self.model_class == Student and (ordering == "courses" or ordering == "-courses"):
+                filter_queryset = Student.objects.raw(
+                    "SELECT * FROM (SELECT DISTINCT ON(courses_student.id) courses_course.name cc_name, * "
+                    "FROM courses_student "
+                    "LEFT JOIN courses_student_courses ON courses_student.id = courses_student_courses.student_id "
+                    "LEFT JOIN courses_course ON courses_student_courses.course_id = courses_course.id) t "
+                    "ORDER BY t.cc_name {}" .format("DESC" if ordering == "-courses" else "ASC"))
+            paginate_queryset = self.paginate_queryset(filter_queryset)
+        except FieldError:
+            raise ParseError
+
+        total_items = len(list(filter_queryset))
         serializer = self.serializer_class(paginate_queryset, many=True)
         related = []
         if self.model_class == Student:
             related = CourseSerializer(Course.objects.all(), many=True).data
         data = {"total": total_items, "related": related, "result": serializer.data}
         return data
-
-    def filter_queryset(self, queryset):
-        queryset = super(BaseModelViewSetMixin, self).filter_queryset(queryset)
-        return self.ordering_filter.filter_queryset(self.request, queryset, self)
 
 
 class CourseViewSet(BaseModelViewSetMixin):
@@ -57,7 +66,7 @@ class CourseViewSet(BaseModelViewSetMixin):
     """
 
     model_class = Course
-    queryset = Course.objects.all().order_by("id")
+    queryset = Course.objects.all()
     serializer_class = CourseSerializer
     search_fields = ("name", "description", "short_description",)
     filter_fields = ("id", "name", "description", "short_description", "code",)
@@ -69,7 +78,7 @@ class StudentViewSet(BaseModelViewSetMixin):
     `update` and `destroy` actions by Student model.
     """
     model_class = Student
-    queryset = Student.objects.all().order_by("id")
+    queryset = Student.objects.all()
     serializer_class = StudentSerializer
     search_fields = ("name", "surname", "email",)
     filter_fields = ("id", "name", "surname", "email", "courses", "status",)
