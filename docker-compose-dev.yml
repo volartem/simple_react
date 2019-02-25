@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+
+  db-local:
+    image: postgres:10
+    restart: always
+    env_file:
+      - .env.db
+    ports:
+      - "5432:5432"
