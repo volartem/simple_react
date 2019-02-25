@@ -17,6 +17,9 @@ class BaseModelViewSetMixin(ModelViewSet):
 
     @method_decorator(ensure_csrf_cookie)
     def list(self, request, *args, **kwargs):
+        """
+        Get list items with ordering, search and model fields params for filtering
+        """
         data = self.custom_data()
         return Response(status=status.HTTP_200_OK, data=data)
 
