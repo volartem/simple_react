@@ -16,7 +16,7 @@ class Student(models.Model):
     surname = models.CharField(verbose_name='Student surname', max_length=60)
     status = models.BooleanField()
     email = models.EmailField(unique=True)
-    courses = models.ManyToManyField(Course)
+    courses = models.ManyToManyField(Course, blank=True)
 
     def __str__(self):
         return "%s %s" % (self.name, self.surname)

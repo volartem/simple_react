@@ -18,3 +18,11 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ("id", "email", "name", "surname", "status", "courses")
+
+
+class StudentCreateSerializer(serializers.ModelSerializer):
+    status = serializers.BooleanField(default=False)
+
+    class Meta:
+        model = Student
+        fields = ("id", "email", "name", "surname", "status", "courses")

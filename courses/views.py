@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from courses.models import Course, Student
-from courses.serializers import CourseSerializer, StudentSerializer
+from courses.serializers import CourseSerializer, StudentSerializer, StudentCreateSerializer
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.response import Response
@@ -29,7 +29,11 @@ class BaseModelViewSetMixin(ModelViewSet):
         return Response(status=status.HTTP_200_OK, data=data)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        if self.model_class == Student:
+            serializer = StudentCreateSerializer(data=request.data)
+        else:
+            serializer = self.serializer_class(data=request.data)
+
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)

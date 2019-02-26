@@ -7,6 +7,8 @@ services:
     restart: always
     env_file:
       - .env.db
+    networks:
+      - main
 
   web:
     build:
@@ -20,3 +22,9 @@ services:
       - db
     depends_on:
       - db
+    networks:
+      - main
+
+networks:
+  main:
+    internal: false

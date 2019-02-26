@@ -3,19 +3,13 @@ from courses.models import Student, Course
 
 
 class StudentTest(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        course = Course.objects.create(name='Test name', description='Test description',
-                                       short_description="Test short description", code="Test code")
-        student = Student.objects.create(name="Name", surname="Surname", status=False, email="test@email.com")
-        student.courses.add(course)
-        Student.objects.create(name="Name2", surname="Surname2", status=False, email="test2@email.com")
-        Student.objects.create(name="Name3", surname="Surname3", status=True, email="test3@email.com")
+    fixtures = [
+        "initial.json",
+    ]
 
     def test_courses_students_relationship(self):
         student = Student.objects.get(pk=1)
-        course = Course.objects.get(pk=5)                         # pk from previous db manipulations
+        course = Course.objects.get(pk=1)
         self.assertIn(course, student.courses.all())
 
     def test_create_instance(self):
@@ -25,19 +19,19 @@ class StudentTest(TestCase):
 
     def test_name_content(self):
         course = Student.objects.get(pk=1)
-        self.assertEquals(course.name, 'Name')
+        self.assertEquals(course.name, 'Steve')
 
     def test_surname_content(self):
         course = Student.objects.get(pk=2)
-        self.assertEquals(course.surname, 'Surname2')
+        self.assertEquals(course.surname, 'Willis')
 
     def test_status_content(self):
         course = Student.objects.get(pk=3)
-        self.assertTrue(course.status)
+        self.assertFalse(course.status)
 
     def test_email_content(self):
         course = Student.objects.get(pk=3)
-        self.assertEquals(course.email, "test3@email.com")
+        self.assertEquals(course.email, "iron-chuck@email.com")
 
     def test_add_students_relationship(self):
         course = Course.objects.create(name='Test name1', description='Test description1',
@@ -53,7 +47,7 @@ class StudentTest(TestCase):
 
     def test_remove_students_relationship(self):
         student = Student.objects.get(pk=1)
-        course = Course.objects.get(pk=5)
+        course = Course.objects.get(pk=1)
         self.assertTrue(student.courses.all())
         self.assertIn(course, student.courses.all())
         student.courses.remove(course)
