@@ -9,11 +9,13 @@ from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.exceptions import FieldError
 from rest_framework.exceptions import ParseError
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
 class BaseModelViewSetMixin(ModelViewSet):
     model_class = None
     filter_backends = (filters.SearchFilter, DjangoFilterBackend,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     @method_decorator(ensure_csrf_cookie)
     def list(self, request, *args, **kwargs):

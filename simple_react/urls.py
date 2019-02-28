@@ -17,13 +17,17 @@ from django.contrib import admin
 from django.urls import re_path, include
 from django.views.generic import TemplateView
 from rest_framework_swagger.views import get_swagger_view
+from rest_framework_simplejwt import views as jwt_views
 
 
 schema_view = get_swagger_view(title='COURSES API')
 
 urlpatterns = [
-    re_path(r'^swagger-docs/', schema_view),
     re_path(r'^admin/', admin.site.urls),
+    re_path('^api/token/$', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    re_path('^api/token/refresh/$', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    re_path(r'^swagger-docs/', schema_view),
+
     re_path(r'^api/v1/', include('courses.urls')),
     re_path(r'^', TemplateView.as_view(template_name='simple_react/index.html')),
 ]
