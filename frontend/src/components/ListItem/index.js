@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {Button, Modal, Alert} from "react-bootstrap";
 import Student from "../Students";
 import Course from "../Courses";
-
+import Api from "../DataApi";
 
 class EditItem extends Component {
 
@@ -70,11 +70,11 @@ class EditItem extends Component {
             url = "/api/v1/students/";
         }
         if (this.state.action === "Edit") {
-            this.props.ApiInstance.putRequest(url + this.state.item.id + "/", this.state.item, this);
+            Api.putRequest(url + this.state.item.id + "/", this.state.item, this);
         }
         if (this.state.action === "Add") {
             url = this.props.prepareUrl(this.props.activePage, "Add");
-            this.props.ApiInstance.postRequest(url, this.state.item, this);
+            Api.postRequest(url, this.state.item, this);
         }
         this.handleHide();
     }

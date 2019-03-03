@@ -36,8 +36,6 @@ class List extends Component {
         this.itemElement = React.createRef();
     }
 
-    ApiInstance = new Api();
-
     initDefaultFilters(props) {
         let obj = {id: "", name: ""};
         obj = props.name === "students" ?
@@ -52,7 +50,7 @@ class List extends Component {
         this.calculateAndSetActivePageAndItemsOnPage(countItemsPerPage).then(
             function () {
                 let url = that.prepareUrl(that.state.activePage);
-                that.ApiInstance.getRequest(url, that);
+                Api.getRequest(url, that);
             }, function (error) {
                 console.error(error);
             });
@@ -129,7 +127,7 @@ class List extends Component {
 
     handlePageChange(pageNumber) {
         let url = this.prepareUrl(pageNumber);
-        this.ApiInstance.getRequest(url, this);
+        Api.getRequest(url, this);
         this.synchronizePaginateState(this.state.totalItems, pageNumber, this.state.itemsCountPerPage, this.state.pageRangeDisplayed);
     }
 
@@ -175,7 +173,7 @@ class List extends Component {
 
     confirmDelete() {
         let url = this.prepareUrl(this.state.activePage, "Delete", this.state.itemDeleted);
-        this.ApiInstance.deleteRequest(url, this, this.state.itemDeleted);
+        Api.deleteRequest(url, this, this.state.itemDeleted);
         this.handleHideModalDelete();
     }
 
@@ -195,7 +193,7 @@ class List extends Component {
 
     componentDidMount() {
         let url = this.prepareUrl(this.state.activePage);
-        this.ApiInstance.getRequest(url, this);
+        Api.getRequest(url, this);
     }
 
     handleHideModalDelete() {
@@ -281,13 +279,13 @@ class List extends Component {
                             </nav>
                         </div>
                         {this.props.name === 'courses' ?
-                            <EditItem ApiInstance={this.ApiInstance} name={this.props.name} item={this.state.item}
+                            <EditItem name={this.props.name} item={this.state.item}
                                       ref={this.itemElement}
                                       action={"Edit"}
                                       activePage={this.state.activePage}
                                       prepareUrl={this.prepareUrl.bind(this)}
                                       handleToUpdate={this.handleToUpdate.bind(this)}/> :
-                            <EditItem ApiInstance={this.ApiInstance} name={this.props.name} item={this.state.item}
+                            <EditItem name={this.props.name} item={this.state.item}
                                       ref={this.itemElement}
                                       courses={this.state.related} action={"Edit"}
                                       activePage={this.state.activePage}

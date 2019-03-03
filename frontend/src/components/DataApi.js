@@ -12,7 +12,7 @@ class Api {
         }
     }
 
-    getCookie(name) {
+    static getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             let cookies = document.cookie.split(';');
@@ -137,7 +137,7 @@ class Api {
         return result;
     }
 
-    apiRequest(url, method, item) {
+    static apiRequest(url, method, item) {
         return fetch(url, {
             method: method,
             body: JSON.stringify(item),
@@ -148,7 +148,7 @@ class Api {
         });
     }
 
-    putRequest(url, item, that) {
+    static putRequest(url, item, that) {
         this.apiRequest(url, "PUT", item).then(response => {
             if (response.status === 200) {
                 response.json().then(data => {
@@ -166,7 +166,7 @@ class Api {
         })
     }
 
-    postRequest(url, item, that) {
+    static postRequest(url, item, that) {
         this.apiRequest(url, "POST", item).then((response) => {
             if (response.status === 201) {
                 response.json().then(data => {
@@ -184,7 +184,7 @@ class Api {
         })
     }
 
-    deleteRequest(url, that, item) {
+    static deleteRequest(url, that, item) {
         this.apiRequest(url, "DELETE", item).then((response) => {
             console.log(response);
             response.json().then(data => {
@@ -194,7 +194,7 @@ class Api {
         })
     }
 
-    getRequest(url, that) {
+    static getRequest(url, that) {
         this.apiRequest(url, "GET").then((response) => {
             if (response.status === 200) {
                 response.json().then(data => {
