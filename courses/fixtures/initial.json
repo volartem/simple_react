@@ -51,13 +51,29 @@
         "model": "contenttypes.contenttype",
         "pk": 7,
         "fields": {
+            "app_label": "token_blacklist",
+            "model": "blacklistedtoken"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 8,
+        "fields": {
+            "app_label": "token_blacklist",
+            "model": "outstandingtoken"
+        }
+    },
+    {
+        "model": "contenttypes.contenttype",
+        "pk": 9,
+        "fields": {
             "app_label": "courses",
             "model": "course"
         }
     },
     {
         "model": "contenttypes.contenttype",
-        "pk": 8,
+        "pk": 10,
         "fields": {
             "app_label": "courses",
             "model": "student"
@@ -402,71 +418,143 @@
         "model": "auth.permission",
         "pk": 25,
         "fields": {
-            "name": "Can add course",
+            "name": "Can add blacklisted token",
             "content_type": 7,
-            "codename": "add_course"
+            "codename": "add_blacklistedtoken"
         }
     },
     {
         "model": "auth.permission",
         "pk": 26,
         "fields": {
-            "name": "Can change course",
+            "name": "Can change blacklisted token",
             "content_type": 7,
-            "codename": "change_course"
+            "codename": "change_blacklistedtoken"
         }
     },
     {
         "model": "auth.permission",
         "pk": 27,
         "fields": {
-            "name": "Can delete course",
+            "name": "Can delete blacklisted token",
             "content_type": 7,
-            "codename": "delete_course"
+            "codename": "delete_blacklistedtoken"
         }
     },
     {
         "model": "auth.permission",
         "pk": 28,
         "fields": {
-            "name": "Can view course",
+            "name": "Can view blacklisted token",
             "content_type": 7,
-            "codename": "view_course"
+            "codename": "view_blacklistedtoken"
         }
     },
     {
         "model": "auth.permission",
         "pk": 29,
         "fields": {
-            "name": "Can add student",
+            "name": "Can add outstanding token",
             "content_type": 8,
-            "codename": "add_student"
+            "codename": "add_outstandingtoken"
         }
     },
     {
         "model": "auth.permission",
         "pk": 30,
         "fields": {
-            "name": "Can change student",
+            "name": "Can change outstanding token",
             "content_type": 8,
-            "codename": "change_student"
+            "codename": "change_outstandingtoken"
         }
     },
     {
         "model": "auth.permission",
         "pk": 31,
         "fields": {
-            "name": "Can delete student",
+            "name": "Can delete outstanding token",
             "content_type": 8,
-            "codename": "delete_student"
+            "codename": "delete_outstandingtoken"
         }
     },
     {
         "model": "auth.permission",
         "pk": 32,
         "fields": {
-            "name": "Can view student",
+            "name": "Can view outstanding token",
             "content_type": 8,
+            "codename": "view_outstandingtoken"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "pk": 33,
+        "fields": {
+            "name": "Can add course",
+            "content_type": 9,
+            "codename": "add_course"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "pk": 34,
+        "fields": {
+            "name": "Can change course",
+            "content_type": 9,
+            "codename": "change_course"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "pk": 35,
+        "fields": {
+            "name": "Can delete course",
+            "content_type": 9,
+            "codename": "delete_course"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "pk": 36,
+        "fields": {
+            "name": "Can view course",
+            "content_type": 9,
+            "codename": "view_course"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "pk": 37,
+        "fields": {
+            "name": "Can add student",
+            "content_type": 10,
+            "codename": "add_student"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "pk": 38,
+        "fields": {
+            "name": "Can change student",
+            "content_type": 10,
+            "codename": "change_student"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "pk": 39,
+        "fields": {
+            "name": "Can delete student",
+            "content_type": 10,
+            "codename": "delete_student"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "pk": 40,
+        "fields": {
+            "name": "Can view student",
+            "content_type": 10,
             "codename": "view_student"
         }
     },

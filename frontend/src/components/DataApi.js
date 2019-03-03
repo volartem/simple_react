@@ -1,6 +1,17 @@
 
 class Api {
 
+    static getTokensFromLocalStorage() {
+        return {access: localStorage.getItem('access'), refresh: localStorage.getItem("refresh")};
+    }
+
+    static setTokensToLocalStorage(token, refresh) {
+        localStorage.setItem('access', token);
+        if (refresh) {
+            localStorage.setItem("refresh", refresh);
+        }
+    }
+
     getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -14,6 +25,116 @@ class Api {
             }
         }
         return cookieValue;
+    }
+
+    static apiLoginRequest(username, password) {
+        return new Promise(function (resolve, reject) {
+            fetch("/api/token/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({"username": username, "password": password})
+            }).then(
+                response => {
+                    if (response.status === 200) {
+                        response.json().then(data => {
+                            Api.setTokensToLocalStorage(data.access, data.refresh);
+                            resolve({auth: "ok"});
+                        });
+                    } else {
+                        reject({error: response});
+                    }
+                },
+                error => {
+                    console.log("Error \n", error);
+                    reject({error: error});
+                }
+            )
+        })
+    }
+
+    static apiLoginRequestRefreshToken(token) {
+        return new Promise(function (resolve, reject) {
+            console.log("refresh token ", token);
+            fetch("/api/token/refresh/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({"refresh": token})
+            }).then((response) => {
+                    console.log("then response data");
+                    console.log(response);
+                    if (response.status === 200) {
+                        response.json().then(data => {
+                            Api.setTokensToLocalStorage(data.access);
+                            resolve({auth: true});
+                        });
+                    } else {
+                        resolve({auth: false});
+                    }
+                }, (error) => {
+                    console.log(error);
+                    resolve({auth: false});
+                }
+            );
+        });
+    }
+
+    static apiLogoutRequest() {
+        let localTokens = Api.getTokensFromLocalStorage();
+        fetch("/api/logout/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${localTokens.access}`
+                },
+                body: JSON.stringify({"refresh": localTokens.refresh})
+            }).then((response) => {
+                    console.log("then response data");
+                    console.log(response);
+                    if (response.status === 204) {
+                        localStorage.removeItem("access");
+                        localStorage.removeItem("refresh");
+                        // this.updateMainAppAuthState(false);
+                    } else {
+                        console.log(response)
+                    }
+                }, (error) => {
+                    console.log(error);
+                }
+            );
+    }
+
+    static apiInitLocalToken() {
+        let result = false;
+        let localTokens = Api.getTokensFromLocalStorage();
+        if (localTokens.access) {
+            let base64Url = localTokens.access.split('.')[1];
+            let base64 = base64Url.replace('-', '+').replace('_', '/');
+            let tokenPayload = JSON.parse(window.atob(base64));
+            console.log(tokenPayload);
+            if (tokenPayload.exp) {
+                console.log(tokenPayload.exp);
+                let date = new Date();
+                console.log("date = ", date);
+                let currentSeconds = date.getTime() / 1000 | 0;
+                console.log("current seconds = ", currentSeconds);
+                if (tokenPayload.exp > currentSeconds) {
+                    console.log("All is ok user is logged in");
+                    result = true;
+                } else {
+                    if (localTokens.refresh) {
+                        this.apiLoginRequestRefreshToken(localTokens.refresh).then(data => {
+                            result = data.auth;
+                            console.log("result promise App = ", result);
+                        });
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     apiRequest(url, method, item) {

@@ -54,7 +54,7 @@ class BaseModelViewSetMixin(ModelViewSet):
                     "FROM courses_student "
                     "LEFT JOIN courses_student_courses ON courses_student.id = courses_student_courses.student_id "
                     "LEFT JOIN courses_course ON courses_student_courses.course_id = courses_course.id) t "
-                    "ORDER BY t.cc_name {}" .format("DESC" if ordering == "-courses" else "ASC"))
+                    "ORDER BY t.cc_name {}".format("DESC" if ordering == "-courses" else "ASC"))
             paginate_queryset = self.paginate_queryset(filter_queryset)
         except FieldError:
             raise ParseError
