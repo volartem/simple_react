@@ -20,7 +20,7 @@ class CourseApiTest(APITestCase):
 
     def test_courses_list_response(self):
         response = self.client.get("/api/v1/courses/", format="json")
-        self.assertTrue(response.status_code, 200)
+        self.assertEquals(response.status_code, 200)
 
     def test_courses_list_count(self):
         response = self.client.get("/api/v1/courses/", format="json")

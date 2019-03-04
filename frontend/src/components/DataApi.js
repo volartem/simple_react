@@ -53,14 +53,15 @@ class Api {
         })
     }
 
-    static apiLoginRequestRefreshToken(token) {
+    static apiLoginRequestRefreshToken() {
+        let localTokens = Api.getTokensFromLocalStorage();
         return new Promise(function (resolve, reject) {
             fetch("/api/token/refresh/", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({"refresh": token})
+                body: JSON.stringify({"refresh": localTokens.refresh})
             }).then((response) => {
                     console.log(response);
                     if (response.status === 200) {
@@ -90,12 +91,8 @@ class Api {
             body: JSON.stringify({"refresh": localTokens.refresh})
         }).then((response) => {
                 console.log(response);
-                if (response.status === 204) {
-                    localStorage.removeItem("access");
-                    localStorage.removeItem("refresh");
-                } else {
-                    console.log(response)
-                }
+                localStorage.removeItem("access");
+                localStorage.removeItem("refresh");
             }, (error) => {
                 console.log(error);
             }
@@ -109,18 +106,19 @@ class Api {
             let base64Url = localTokens.access.split('.')[1];
             let base64 = base64Url.replace('-', '+').replace('_', '/');
             let tokenPayload = JSON.parse(window.atob(base64));
+            console.log(tokenPayload);
             if (tokenPayload.exp) {
+                console.log(tokenPayload.exp);
                 let date = new Date();
+                console.log("date = ", date);
                 let currentSeconds = date.getTime() / 1000 | 0;
+                console.log("current seconds = ", currentSeconds);
                 if (tokenPayload.exp > currentSeconds) {
                     console.log("All is ok user is logged in correct");
                     result = true;
                 } else {
                     if (localTokens.refresh) {
-                        this.apiLoginRequestRefreshToken(localTokens.refresh).then(data => {
-                            result = data.auth;
-                            console.log("refresh = ", result);
-                        });
+                        result = "need refresh";
                     }
                 }
             }
@@ -151,7 +149,7 @@ class Api {
                     that.props.handleToUpdate({}, "Edit", data);
                     that.handleSuccessShow();
                 });
-            } else if (response.status === 500) {
+            } else if (response.status === 500 || response.status === 401) {
                 that.formFieldsError({"error": response.statusText});
             } else {
                 response.json().then(data => {
@@ -169,7 +167,7 @@ class Api {
                     that.props.handleToUpdate(data, "Add");
                     that.handleSuccessShow();
                 });
-            } else if (response.status === 500) {
+            } else if (response.status === 500 || response.status === 401) {
                 that.formFieldsError({"error": response.statusText});
             } else {
                 response.json().then(data => {
@@ -184,13 +182,20 @@ class Api {
         this.apiRequest(url, "DELETE", item).then((response) => {
             console.log(response);
             response.json().then(data => {
-                that.getRequestHandler(data);
+                if (response.status === 200)  {
+                    that.getRequestHandler(data);
+                } else {
+                    that.deleteErrorShow(response.statusText);
+                }
+            }, error => {
+                console.log("Reject \n", error);
             });
         })
     }
 
     static getRequest(url, that) {
         this.apiRequest(url, "GET").then((response) => {
+            console.log("Response");
             if (response.status === 200) {
                 response.json().then(data => {
                     that.getRequestHandler(data);

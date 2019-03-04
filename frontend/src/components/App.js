@@ -11,12 +11,23 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isAuthenticated: Api.apiInitLocalToken()
+            isAuthenticated: false
         };
-
     }
 
-    updateAuthState(auth){
+    componentDidMount() {
+        let localAuth = Api.apiInitLocalToken();
+        if (localAuth === "need refresh") {
+            Api.apiLoginRequestRefreshToken().then((data) => {
+                console.log("App refresh then data = ", data);
+                this.setState({isAuthenticated: data.auth})
+            });
+        } else {
+            this.setState({isAuthenticated: localAuth});
+        }
+    }
+
+    updateAuthState(auth) {
         console.log("Update App auth state ", auth);
         this.setState({isAuthenticated: auth});
     }
@@ -24,7 +35,8 @@ class App extends React.Component {
     render() {
         return (
             <BrowserRouter>
-                <BaseLayout isAuthenticated={this.state.isAuthenticated} updateAuthState={this.updateAuthState.bind(this)}>
+                <BaseLayout isAuthenticated={this.state.isAuthenticated}
+                            updateAuthState={this.updateAuthState.bind(this)}>
                     <Switch>
                         <Route exact path="/" component={IndexComponent}/>
                         <Route path="/courses"
@@ -33,7 +45,8 @@ class App extends React.Component {
                         <Route path="/students"
                                component={() => (<List endpoint={"api/v1/students/"} name={"students"}
                                                        isAuthenticated={this.state.isAuthenticated}/>)}/>
-                        <Route path="/login" component={ () =><LoginComponent updateAuthState={this.updateAuthState.bind(this)} />}/>
+                        <Route path="/login"
+                               component={() => <LoginComponent updateAuthState={this.updateAuthState.bind(this)}/>}/>
                     </Switch>
                 </BaseLayout>
             </BrowserRouter>

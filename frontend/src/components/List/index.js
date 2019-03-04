@@ -3,12 +3,12 @@ import EditItem from '../ListItem';
 import key from "weak-key";
 import Pagination from "react-js-pagination";
 import PropTypes from "prop-types";
-import {Button, Modal} from "react-bootstrap";
+import {Alert, Button, Modal} from "react-bootstrap";
 import Api from "../DataApi";
 
 
 class List extends Component {
-
+    _isMounted = false;
     static propTypes = {
         endpoint: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired
@@ -22,6 +22,8 @@ class List extends Component {
             related: [],
 
             deleteModal: false,
+            errorShow: false,
+            error: "",
             itemDeleted: {},
 
             filters: this.initDefaultFilters(props),
@@ -34,6 +36,19 @@ class List extends Component {
             activePage: 1
         };
         this.itemElement = React.createRef();
+    }
+
+    handleErrorsDismiss() {
+        this.setState({errorsShow: false});
+    }
+
+    handleErrorsShow() {
+        this.setState({errorsShow: true});
+    }
+
+    deleteErrorShow(data) {
+        this.setState({error: data});
+        this.handleErrorsShow();
     }
 
     initDefaultFilters(props) {
@@ -188,12 +203,19 @@ class List extends Component {
     }
 
     getRequestHandler(data) {
-        this.setState({items: data.result, totalItems: data.total, related: data.related});
+        if (this._isMounted) {
+            this.setState({items: data.result, totalItems: data.total, related: data.related});
+        }
     }
 
     componentDidMount() {
+        this._isMounted = true;
         let url = this.prepareUrl(this.state.activePage);
         Api.getRequest(url, this);
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     handleHideModalDelete() {
@@ -215,6 +237,15 @@ class List extends Component {
             return (
                 <div className="row">
                     <div className={"col-md-12 col-xs-12"}>
+                        {this.state.errorsShow ?
+                            <Alert bsStyle="danger" onDismiss={this.handleErrorsDismiss.bind(this)}>
+                                <h4>Oh not!!! You've got an error!</h4>
+                                {this.state.error}
+                                <p>
+                                    <Button onClick={this.handleErrorsDismiss.bind(this)}>Hide</Button>
+                                </p>
+                            </Alert>
+                            : null}
                         <div className={"row"}>
                             <div className={"col-md-10 col-xs-10"}>
                                 <Pagination
@@ -297,7 +328,9 @@ class List extends Component {
                                 <thead>
                                 <tr>
                                     {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
-                                        <td className="form-group row"  key={key(el)}><div className="col-xs-2"> {el[0]}</div></td>) : null}
+                                        <td className="form-group row" key={key(el)}>
+                                            <div className="col-xs-2"> {el[0]}</div>
+                                        </td>) : null}
                                     <td></td>
                                     <td></td>
                                 </tr>
@@ -305,7 +338,8 @@ class List extends Component {
                                     {this.state.items.length ? Object.entries(this.state.items[0]).map(el =>
                                         <td className="form-group row" key={`filter-${el[0]}`}>
                                             <div className="col-xs-12">
-                                                <input className={"form-control"} onChange={this.handleInputFilters.bind(this)} name={el[0]}
+                                                <input className={"form-control"}
+                                                       onChange={this.handleInputFilters.bind(this)} name={el[0]}
                                                        value={this.state.filters[el[0]]} type={"text"}/>
                                             </div>
                                         </td>) : null}
