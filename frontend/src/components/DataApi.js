@@ -1,4 +1,3 @@
-
 class Api {
 
     static getTokensFromLocalStorage() {
@@ -56,7 +55,6 @@ class Api {
 
     static apiLoginRequestRefreshToken(token) {
         return new Promise(function (resolve, reject) {
-            console.log("refresh token ", token);
             fetch("/api/token/refresh/", {
                 method: "POST",
                 headers: {
@@ -64,7 +62,6 @@ class Api {
                 },
                 body: JSON.stringify({"refresh": token})
             }).then((response) => {
-                    console.log("then response data");
                     console.log(response);
                     if (response.status === 200) {
                         response.json().then(data => {
@@ -85,26 +82,24 @@ class Api {
     static apiLogoutRequest() {
         let localTokens = Api.getTokensFromLocalStorage();
         fetch("/api/logout/", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    "Authorization": `Bearer ${localTokens.access}`
-                },
-                body: JSON.stringify({"refresh": localTokens.refresh})
-            }).then((response) => {
-                    console.log("then response data");
-                    console.log(response);
-                    if (response.status === 204) {
-                        localStorage.removeItem("access");
-                        localStorage.removeItem("refresh");
-                        // this.updateMainAppAuthState(false);
-                    } else {
-                        console.log(response)
-                    }
-                }, (error) => {
-                    console.log(error);
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${localTokens.access}`
+            },
+            body: JSON.stringify({"refresh": localTokens.refresh})
+        }).then((response) => {
+                console.log(response);
+                if (response.status === 204) {
+                    localStorage.removeItem("access");
+                    localStorage.removeItem("refresh");
+                } else {
+                    console.log(response)
                 }
-            );
+            }, (error) => {
+                console.log(error);
+            }
+        );
     }
 
     static apiInitLocalToken() {
@@ -114,21 +109,17 @@ class Api {
             let base64Url = localTokens.access.split('.')[1];
             let base64 = base64Url.replace('-', '+').replace('_', '/');
             let tokenPayload = JSON.parse(window.atob(base64));
-            console.log(tokenPayload);
             if (tokenPayload.exp) {
-                console.log(tokenPayload.exp);
                 let date = new Date();
-                console.log("date = ", date);
                 let currentSeconds = date.getTime() / 1000 | 0;
-                console.log("current seconds = ", currentSeconds);
                 if (tokenPayload.exp > currentSeconds) {
-                    console.log("All is ok user is logged in");
+                    console.log("All is ok user is logged in correct");
                     result = true;
                 } else {
                     if (localTokens.refresh) {
                         this.apiLoginRequestRefreshToken(localTokens.refresh).then(data => {
                             result = data.auth;
-                            console.log("result promise App = ", result);
+                            console.log("refresh = ", result);
                         });
                     }
                 }
@@ -138,13 +129,18 @@ class Api {
     }
 
     static apiRequest(url, method, item) {
+        let localTokens = this.getTokensFromLocalStorage();
+        let headers = {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': this.getCookie('csrftoken'),
+        };
+        if (["DELETE", "POST", "PUT"].includes(method) && localTokens.access) {
+            headers.Authorization = `Bearer ${localTokens.access}`
+        }
         return fetch(url, {
             method: method,
             body: JSON.stringify(item),
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': this.getCookie('csrftoken')
-            }
+            headers: headers
         });
     }
 
@@ -190,7 +186,6 @@ class Api {
             response.json().then(data => {
                 that.getRequestHandler(data);
             });
-            // this.getRequest(that.prepareUrl(that.state.activePage), that);
         })
     }
 
